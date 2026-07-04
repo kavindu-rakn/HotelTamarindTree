@@ -44,11 +44,14 @@ export default function Header() {
             aria-label="Hotel Tamarind Tree — Home"
           >
             <Image
-              src="/logo.jpeg"
+              src="/logo.png"
               alt="Hotel Tamarind Tree logo"
               width={44}
               height={54}
-              className="object-contain transition-transform duration-300 group-hover:scale-105"
+              className={cn(
+                "object-contain transition-all duration-300 group-hover:scale-105",
+                !(isScrolled || isMobileOpen) && "brightness-0 invert"
+              )}
               priority
             />
             <div className="hidden sm:block leading-tight">

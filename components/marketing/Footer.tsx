@@ -15,7 +15,7 @@ export default function Footer() {
         <div className="lg:col-span-1">
           <Link href="/" className="inline-flex items-center gap-3 mb-5 group" aria-label="Hotel Tamarind Tree">
             <Image
-              src="/logo.jpeg"
+              src="/logo.png"
               alt="Hotel Tamarind Tree logo"
               width={40}
               height={49}
