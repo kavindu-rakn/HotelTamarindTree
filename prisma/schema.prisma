@@ -1,0 +1,273 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────
+
+enum RoomTypeSlug {
+  DELUXE_TWIN
+  DELUXE_DOUBLE
+  DELUXE_TRIPLE
+  FAMILY
+}
+
+enum MealPlan {
+  BB  // Bed & Breakfast
+  HB  // Half Board (B + Lunch)
+  FB  // Full Board  — operational only, not shown on website
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  CHECKED_IN
+  CHECKED_OUT
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum AdminRole {
+  ADMIN
+  STAFF
+}
+
+// ─────────────────────────────────────────────────────
+// Room Types  (e.g. "Deluxe Twin", "Family")
+// ─────────────────────────────────────────────────────
+
+model RoomType {
+  id           String       @id @default(cuid())
+  slug         RoomTypeSlug @unique
+  displayName  String       // "Deluxe Twin", "Deluxe Double", etc.
+  category     String       // "DELUXE" | "FAMILY"
+  bedConfig    String       // "Twin Beds", "Double Bed", "Triple Beds", "4 Beds"
+  maxOccupancy Int
+  sizeSqm      Decimal?     @db.Decimal(6, 2)
+  description  String?      @db.Text
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  units        RoomUnit[]
+  images       RoomImage[]
+  ratePlans    RatePlan[]
+  amenities    RoomAmenity[]
+
+  @@map("room_types")
+}
+
+// ─────────────────────────────────────────────────────
+// Room Units  (physical rooms: 101, 102, …)
+// ─────────────────────────────────────────────────────
+
+model RoomUnit {
+  id           String    @id @default(cuid())
+  roomTypeId   String
+  unitNumber   String    @unique  // "101", "102", …
+  floor        Int?
+  notes        String?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  roomType     RoomType  @relation(fields: [roomTypeId], references: [id])
+  bookings     Booking[]
+  blockedDates BlockedDate[]
+
+  @@map("room_units")
+}
+
+// ─────────────────────────────────────────────────────
+// Room Images
+// ─────────────────────────────────────────────────────
+
+model RoomImage {
+  id           String    @id @default(cuid())
+  roomTypeId   String
+  url          String
+  cloudinaryId String?
+  alt          String    @default("")
+  sortOrder    Int       @default(0)
+  isPrimary    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+
+  roomType     RoomType  @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+
+  @@map("room_images")
+}
+
+// ─────────────────────────────────────────────────────
+// Amenities
+// ─────────────────────────────────────────────────────
+
+model Amenity {
+  id       String  @id @default(cuid())
+  name     String  @unique
+  iconKey  String  // maps to lucide-react icon name
+
+  rooms    RoomAmenity[]
+
+  @@map("amenities")
+}
+
+model RoomAmenity {
+  roomTypeId String
+  amenityId  String
+
+  roomType   RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+  amenity    Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([roomTypeId, amenityId])
+  @@map("room_amenities")
+}
+
+// ─────────────────────────────────────────────────────
+// Rate Plans  (BB / HB / FB per room type)
+// ─────────────────────────────────────────────────────
+
+model RatePlan {
+  id                  String    @id @default(cuid())
+  roomTypeId          String
+  mealPlan            MealPlan
+  priceUsd            Decimal   @db.Decimal(10, 2)
+  cancellationPolicy  String?   @db.Text
+  isRefundable        Boolean   @default(true)
+  // FB is in schema but hidden on the public website
+  isVisible           Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  roomType            RoomType  @relation(fields: [roomTypeId], references: [id])
+  bookings            Booking[]
+
+  @@unique([roomTypeId, mealPlan])
+  @@map("rate_plans")
+}
+
+// ─────────────────────────────────────────────────────
+// Guests
+// ─────────────────────────────────────────────────────
+
+model Guest {
+  id          String    @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  address     String?
+  nationality String?
+  idDocRef    String?   // passport number or NIC — reference only
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  bookings    Booking[]
+
+  @@index([email])
+  @@map("guests")
+}
+
+// ─────────────────────────────────────────────────────
+// Bookings
+//
+// CRITICAL CONSTRAINT: no two active bookings may overlap
+// on the same room_unit_id.  Enforced at DB level via a
+// PostgreSQL EXCLUSION constraint added in a raw migration
+// (see prisma/migrations/0_init/migration.sql).
+// ─────────────────────────────────────────────────────
+
+model Booking {
+  id               String        @id @default(cuid())
+  confirmationCode String        @unique // 8-char alphanumeric, uppercase
+  roomUnitId       String
+  guestId          String
+  ratePlanId       String
+  checkIn          DateTime      @db.Date
+  checkOut         DateTime      @db.Date
+  numGuests        Int           @default(1)
+  status           BookingStatus @default(PENDING)
+  totalPriceUsd    Decimal       @db.Decimal(10, 2)
+  paymentStatus    PaymentStatus @default(UNPAID)
+  paymentIntentId  String?       // Stripe PaymentIntent ID
+  specialRequests  String?       @db.Text
+  cancellationReason String?     @db.Text
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  roomUnit         RoomUnit      @relation(fields: [roomUnitId], references: [id])
+  guest            Guest         @relation(fields: [guestId], references: [id])
+  ratePlan         RatePlan      @relation(fields: [ratePlanId], references: [id])
+
+  @@index([roomUnitId, checkIn, checkOut])
+  @@index([guestId])
+  @@index([confirmationCode])
+  @@map("bookings")
+}
+
+// ─────────────────────────────────────────────────────
+// Blocked Dates  (maintenance, owner use, etc.)
+// ─────────────────────────────────────────────────────
+
+model BlockedDate {
+  id         String    @id @default(cuid())
+  roomUnitId String
+  startDate  DateTime  @db.Date
+  endDate    DateTime  @db.Date
+  reason     String?
+  createdAt  DateTime  @default(now())
+
+  roomUnit   RoomUnit  @relation(fields: [roomUnitId], references: [id], onDelete: Cascade)
+
+  @@map("blocked_dates")
+}
+
+// ─────────────────────────────────────────────────────
+// Admin Users
+// ─────────────────────────────────────────────────────
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(STAFF)
+  lastLogin    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("admin_users")
+}
+
+// ─────────────────────────────────────────────────────
+// Contact Inquiries
+// ─────────────────────────────────────────────────────
+
+model Inquiry {
+  id        String    @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String    @db.Text
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  @@index([createdAt])
+  @@map("inquiries")
+}
