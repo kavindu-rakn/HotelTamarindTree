@@ -47,7 +47,7 @@ export default function Header() {
               src="/logo.png"
               alt="Hotel Tamarind Tree logo"
               width={44}
-              height={54}
+              height={44}
               className={cn(
                 "object-contain transition-all duration-300 group-hover:scale-105",
                 !(isScrolled || isMobileOpen) && "brightness-0 invert"

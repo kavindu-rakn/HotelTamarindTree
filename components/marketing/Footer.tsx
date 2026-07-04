@@ -18,7 +18,7 @@ export default function Footer() {
               src="/logo.png"
               alt="Hotel Tamarind Tree logo"
               width={40}
-              height={49}
+              height={40}
               className="object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity duration-200"
             />
             <div className="leading-tight">
