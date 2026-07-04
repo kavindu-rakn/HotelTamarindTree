@@ -44,7 +44,7 @@ export default function Header() {
             aria-label="Hotel Tamarind Tree — Home"
           >
             <Image
-              src="/logo.png"
+              src="/logo.jpeg"
               alt="Hotel Tamarind Tree logo"
               width={44}
               height={54}
