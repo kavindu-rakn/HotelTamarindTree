@@ -14,3 +14,6 @@ export const prisma =
   })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+
+// Alias — pages can import either { prisma } or { db }
+export const db = prisma
