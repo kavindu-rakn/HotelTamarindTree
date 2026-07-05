@@ -3,6 +3,7 @@ import Image from 'next/image'
 import fs from 'fs'
 import path from 'path'
 import { SITE_NAME } from '@/lib/constants'
+import GalleryGrid from '@/components/marketing/GalleryGrid'
 
 export const metadata: Metadata = {
   title: `Gallery | ${SITE_NAME}`,
@@ -43,29 +44,7 @@ export default function GalleryPage() {
 
       <section className="py-16 bg-[#FAF7F2] min-h-screen">
         <div className="container-hotel">
-          {images.length === 0 ? (
-            <p className="text-center text-[#5a3d2b] font-sans">No images found in the gallery.</p>
-          ) : (
-            <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-              {images.map((src, idx) => (
-                <div
-                  key={idx}
-                  className="relative group overflow-hidden rounded-xl bg-white border border-[#E5DDD3] break-inside-avoid shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
-                >
-                  <Image
-                    src={src}
-                    alt={`Hotel Tamarind Tree Gallery Image ${idx + 1}`}
-                    width={600}
-                    height={400}
-                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  />
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-                </div>
-              ))}
-            </div>
-          )}
+          <GalleryGrid images={images} />
         </div>
       </section>
     </>

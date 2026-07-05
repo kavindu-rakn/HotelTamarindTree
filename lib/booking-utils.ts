@@ -144,11 +144,11 @@ export function guestConfirmationEmailHtml(params: {
         <!-- Status -->
         <tr>
           <td style="padding:32px 40px 0;text-align:center;">
-            <div style="display:inline-block;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:24px;padding:6px 20px;">
-              <span style="color:#2e7d32;font-size:13px;font-family:Arial,sans-serif;font-weight:600;">✓ Booking Confirmed</span>
+            <div style="display:inline-block;background:#fff8e1;border:1px solid #ffe082;border-radius:24px;padding:6px 20px;">
+              <span style="color:#f57f17;font-size:13px;font-family:Arial,sans-serif;font-weight:600;">⏳ Booking Request Received</span>
             </div>
             <h2 style="margin:20px 0 4px;font-size:22px;color:#2C1A12;">Thank you, ${guestName}!</h2>
-            <p style="margin:0;font-size:14px;color:#6D5840;font-family:Arial,sans-serif;">Your reservation is confirmed. We look forward to welcoming you.</p>
+            <p style="margin:0;font-size:14px;color:#6D5840;font-family:Arial,sans-serif;">We have received your booking request and will get in touch within 24 hours to confirm your reservation.</p>
           </td>
         </tr>
         <!-- Confirmation code -->

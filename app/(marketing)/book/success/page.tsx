@@ -24,7 +24,7 @@ export default async function BookSuccessPage({ searchParams }: Props) {
         <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `radial-gradient(circle at 1px 1px, #FAF7F2 1px, transparent 0)`, backgroundSize: '28px 28px' }} aria-hidden="true" />
         <div className="relative z-10 container-hotel text-center">
           <p className="text-label text-[#C9A96E] mb-3">Reservation</p>
-          <h1 className="text-display text-white mb-4">Booking Confirmed</h1>
+          <h1 className="text-display text-white mb-4">Request Received!</h1>
           <div className="w-16 h-0.5 bg-[#C9A96E] mx-auto" />
         </div>
       </section>
@@ -38,14 +38,14 @@ export default async function BookSuccessPage({ searchParams }: Props) {
 
           <h2 className="font-serif text-3xl font-semibold text-[#2C1A12] mb-3">Thank You!</h2>
           <p className="text-[#5a3d2b]/80 font-sans leading-relaxed mb-8">
-            Your reservation at Hotel Tamarind Tree is confirmed. A confirmation email with full details has been sent to your inbox.
+            Your booking request at Hotel Tamarind Tree has been received. Our team will review it shortly and get in touch to confirm your reservation.
           </p>
 
           {ref && (
             <div className="bg-white rounded-xl border border-[#E5DDD3] shadow-[0_2px_20px_rgba(94,30,18,0.06)] p-8 mb-8">
               <p className="text-xs font-sans font-semibold text-[#6D5840] tracking-widest uppercase mb-2">Your Booking Reference</p>
               <p className="font-mono text-3xl font-bold text-[#5e1e12] tracking-widest">{ref}</p>
-              <p className="text-sm text-[#6D5840] font-sans mt-3">Please save this reference and present it at check-in.</p>
+              <p className="text-sm text-[#6D5840] font-sans mt-3">Please save this reference. You&apos;ll need it when we contact you to confirm.</p>
             </div>
           )}
 
@@ -54,10 +54,10 @@ export default async function BookSuccessPage({ searchParams }: Props) {
             <h3 className="font-serif text-xl font-semibold text-[#2C1A12] mb-4">What&apos;s next?</h3>
             <ul className="space-y-4">
               {[
-                { icon: Mail,         text: 'Check your email — a detailed confirmation has been sent to your inbox.' },
-                { icon: CheckCircle2, text: 'Check-in is from 2:00 PM. Check-out by 11:00 AM. Need a different time? Email us.' },
-                { icon: CheckCircle2, text: 'Yala National Park safaris can be arranged directly through us — just let us know when you arrive.' },
-                { icon: CheckCircle2, text: `Questions? Contact us at ${SITE_EMAIL} — we're happy to help.` },
+                { icon: Mail,         text: 'Check your email — a summary of your booking request has been sent to your inbox.' },
+                { icon: CheckCircle2, text: 'Our team will contact you within 24 hours to confirm availability and arrange payment.' },
+                { icon: CheckCircle2, text: 'Check-in is from 2:00 PM. Check-out by 11:00 AM. Need a different time? Let us know.' },
+                { icon: CheckCircle2, text: `Questions? Contact us at ${SITE_EMAIL} — we\'re happy to help.` },
               ].map(({ icon: Icon, text }, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm text-[#5a3d2b] font-sans">
                   <Icon size={16} className="text-[#C9A96E] shrink-0 mt-0.5" />

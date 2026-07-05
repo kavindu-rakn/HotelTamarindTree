@@ -145,7 +145,7 @@ export default function BookPage() {
 
   const selectedRate = selectedRoom?.rates[selectedPlan] ?? null
 
-  async function handlePay() {
+  async function handleSubmit() {
     if (!selectedRoom || !selectedRate) return
     setSubmitting(true)
     setSubmitError('')
@@ -154,11 +154,11 @@ export default function BookPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          roomSlug:       selectedRoom.slug,
-          mealPlan:       selectedPlan,
+          roomSlug:        selectedRoom.slug,
+          mealPlan:        selectedPlan,
           checkIn,
           checkOut,
-          numGuests:      guests,
+          numGuests:       guests,
           firstName,
           lastName,
           email,
@@ -168,7 +168,7 @@ export default function BookPage() {
       })
       const data = await res.json()
       if (!res.ok) { setSubmitError(data.error ?? 'Something went wrong'); return }
-      router.push(data.url) // redirect to Stripe
+      router.push(`/book/success?ref=${data.confirmationCode}`)
     } catch {
       setSubmitError('Network error. Please try again.')
     } finally {
@@ -415,14 +415,14 @@ export default function BookPage() {
                   )}
 
                   <button
-                    onClick={handlePay}
+                    onClick={handleSubmit}
                     disabled={submitting || !firstName || !lastName || !email}
                     className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#5e1e12] text-white font-sans font-semibold text-sm rounded hover:bg-[#7a2a1c] hover:shadow-[0_4px_20px_rgba(94,30,18,0.35)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                   >
                     {submitting ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
-                    {submitting ? 'Redirecting to Stripe…' : `Pay USD $${selectedRate?.totalUsd?.toFixed(2)} Securely`}
+                    {submitting ? 'Submitting your request…' : `Confirm Booking Request — USD $${selectedRate?.totalUsd?.toFixed(2)}`}
                   </button>
-                  <p className="text-xs text-center text-[#6D5840] font-sans">🔒 Secure payment powered by Stripe. Your card details are never stored on our servers.</p>
+                  <p className="text-xs text-center text-[#6D5840] font-sans">No payment is taken now. Our team will contact you to confirm your reservation.</p>
                 </div>
               </div>
 

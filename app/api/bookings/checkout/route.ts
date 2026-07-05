@@ -1,21 +1,28 @@
 // app/api/bookings/checkout/route.ts
+// Payment-free "Request to Book" flow.
+// Creates a PENDING booking in the DB and sends notification emails.
+// PayHere payment integration will be added in a later phase.
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { stripe } from '@/lib/stripe'
-import { generateConfirmationCode, assignAvailableUnit, countNights } from '@/lib/booking-utils'
+import { resend, FROM_EMAIL, HOTEL_EMAIL } from '@/lib/resend'
+import {
+  generateConfirmationCode,
+  assignAvailableUnit,
+  countNights,
+  guestConfirmationEmailHtml,
+  staffNotificationEmailHtml,
+} from '@/lib/booking-utils'
 import { urlSlugToEnum } from '@/lib/utils'
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const {
-      roomSlug,      // URL slug e.g. "deluxe-twin"
-      mealPlan,      // "BB" or "HB"
-      checkIn,       // "2026-08-01"
-      checkOut,      // "2026-08-04"
-      numGuests,     // number
+      roomSlug,
+      mealPlan,
+      checkIn,
+      checkOut,
+      numGuests,
       firstName,
       lastName,
       email,
@@ -71,58 +78,62 @@ export async function POST(req: NextRequest) {
 
     // ── Create PENDING booking ────────────────────────────────────
     const confirmationCode = generateConfirmationCode()
-    const booking = await db.booking.create({
+    await db.booking.create({
       data: {
         confirmationCode,
-        roomUnitId:     unitId,
-        guestId:        guest.id,
-        ratePlanId:     ratePlan.id,
-        checkIn:        checkInDate,
-        checkOut:       checkOutDate,
-        numGuests:      numGuests ?? 1,
-        status:         'PENDING',
-        totalPriceUsd:  totalUsd,
-        paymentStatus:  'PENDING',
+        roomUnitId:      unitId,
+        guestId:         guest.id,
+        ratePlanId:      ratePlan.id,
+        checkIn:         checkInDate,
+        checkOut:        checkOutDate,
+        numGuests:       numGuests ?? 1,
+        status:          'PENDING',
+        totalPriceUsd:   totalUsd,
+        paymentStatus:   'UNPAID',
         specialRequests: specialRequests || null,
       },
     })
 
-    // ── Create Stripe Checkout Session ────────────────────────────
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      mode: 'payment',
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `${roomType.displayName} — ${mealPlan === 'BB' ? 'Bed & Breakfast' : 'Half Board'}`,
-              description: `${nights} night${nights > 1 ? 's' : ''} · ${checkIn} → ${checkOut} · Ref: ${confirmationCode}`,
-              images: [`${SITE_URL}/rooms/${roomSlug}.png`],
-            },
-            unit_amount: Math.round(totalUsd * 100), // Stripe uses cents
-          },
-          quantity: 1,
-        },
-      ],
-      customer_email: email.toLowerCase(),
-      metadata: {
-        bookingId:        booking.id,
-        confirmationCode,
-        guestName,
-        phone:            phone ?? '',
-        specialRequests:  specialRequests ?? '',
-        roomName:         roomType.displayName,
-        mealPlan,
-        nights:           String(nights),
-        numGuests:        String(numGuests ?? 1),
-      },
-      success_url: `${SITE_URL}/book/success?ref=${confirmationCode}`,
-      cancel_url:  `${SITE_URL}/book/cancel?ref=${confirmationCode}`,
-      expires_at:  Math.floor(Date.now() / 1000) + 30 * 60, // 30 min — matches our pending timeout
-    })
+    // ── Send emails ───────────────────────────────────────────────
+    const checkInStr  = checkInDate.toISOString().slice(0, 10)
+    const checkOutStr = checkOutDate.toISOString().slice(0, 10)
 
-    return NextResponse.json({ url: session.url })
+    const emailParams = {
+      guestName,
+      confirmCode:  confirmationCode,
+      roomName:     roomType.displayName,
+      boardPlan:    mealPlan,
+      checkIn:      checkInStr,
+      checkOut:     checkOutStr,
+      nights,
+      guests:       numGuests ?? 1,
+      totalUsd:     totalUsd.toFixed(2),
+    }
+
+    // Guest confirmation (fire-and-forget — don't block the response)
+    resend.emails.send({
+      from:    FROM_EMAIL,
+      to:      email.toLowerCase(),
+      subject: `Booking Request Received — ${confirmationCode} | Hotel Tamarind Tree`,
+      html:    guestConfirmationEmailHtml(emailParams),
+    }).catch(err => console.error('[email] guest confirmation failed:', err))
+
+    // Staff notification
+    resend.emails.send({
+      from:    FROM_EMAIL,
+      to:      HOTEL_EMAIL,
+      subject: `New Booking Request: ${confirmationCode} — ${guestName}`,
+      html:    staffNotificationEmailHtml({
+        ...emailParams,
+        guestEmail:  email.toLowerCase(),
+        guestPhone:  phone ?? '',
+        specialReqs: specialRequests ?? '',
+      }),
+    }).catch(err => console.error('[email] staff notification failed:', err))
+
+    // ── Return success ────────────────────────────────────────────
+    return NextResponse.json({ confirmationCode })
+
   } catch (err) {
     console.error('[checkout] error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
