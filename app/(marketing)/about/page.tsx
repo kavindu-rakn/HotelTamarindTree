@@ -56,16 +56,21 @@ export default function AboutPage() {
       {/* ── Story section ── */}
       <section className="py-24 bg-[#FAF7F2]">
         <div className="container-hotel grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Image placeholder */}
-          <div className="relative h-96 rounded-2xl bg-gradient-to-br from-[#5e1e12]/10 to-[#6D5840]/20 border border-[#E5DDD3] overflow-hidden flex items-center justify-center">
-            <div className="opacity-20 flex flex-col items-center gap-3">
-              <TreePine size={80} className="text-[#6D5840]" />
-              <p className="text-sm font-sans text-[#6D5840]">Hotel photo — coming soon</p>
-            </div>
+          {/* Real Photo */}
+          <div className="relative h-96 rounded-2xl border border-[#E5DDD3] shadow-[0_8px_40px_rgba(94,30,18,0.06)] overflow-hidden">
+            <Image
+              src="/gallery/T001.jpg"
+              alt="Hotel Tamarind Tree wooden sign"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+            {/* Subtle overlay for text legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             {/* Location tag */}
-            <div className="absolute bottom-4 left-4 flex items-center gap-2 px-4 py-2 bg-[#2C1A12]/70 backdrop-blur-sm rounded-full">
-              <MapPin size={13} className="text-[#C9A96E]" />
-              <span className="text-xs text-white font-sans">Tissamaharama, Sri Lanka</span>
+            <div className="absolute bottom-4 left-4 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+              <MapPin size={13} className="text-white" />
+              <span className="text-xs text-white font-sans font-medium">Tissamaharama, Sri Lanka</span>
             </div>
           </div>
 

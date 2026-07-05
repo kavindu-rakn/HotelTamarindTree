@@ -89,22 +89,20 @@ export default function HomePage() {
         className="relative min-h-screen flex flex-col justify-center overflow-hidden"
         aria-label="Hero"
       >
-        {/* Background — placeholder gradient (replace with real photo in Phase 2) */}
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            background: 'linear-gradient(135deg, #3d1209 0%, #5e1e12 30%, #6D5840 70%, #4e3f2d 100%)',
-          }}
-          aria-hidden="true"
+        {/* Hero photo — full bleed */}
+        <Image
+          src="/gallery/T011.jpg"
+          alt="Hotel Tamarind Tree — pool and gardens, Tissamaharama"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
         />
 
-        {/* Decorative pattern overlay */}
+        {/* Dark overlay for text legibility */}
         <div
-          className="absolute inset-0 z-0 opacity-[0.07]"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, #FAF7F2 1px, transparent 0)`,
-            backgroundSize: '32px 32px',
-          }}
+          className="absolute inset-0 z-0"
+          style={{ background: 'linear-gradient(to bottom, rgba(44,26,18,0.52) 0%, rgba(44,26,18,0.35) 50%, rgba(44,26,18,0.72) 100%)' }}
           aria-hidden="true"
         />
 
@@ -284,12 +282,17 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Placeholder for photo */}
-          <div className="relative h-80 lg:h-96 rounded-xl overflow-hidden bg-gradient-to-br from-[#5e1e12]/30 to-[#6D5840]/30 border border-white/10">
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 opacity-30">
-              <TreePine size={64} className="text-[#C9A96E]" />
-              <p className="text-white/50 text-sm font-sans">Hotel photo — Phase 2</p>
-            </div>
+          {/* Real Photo */}
+          <div className="relative h-80 lg:h-96 rounded-xl overflow-hidden border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.3)]">
+            <Image
+              src="/gallery/T013.jpg"
+              alt="Pool side relaxation at Hotel Tamarind Tree"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+            {/* Subtle inner dark gradient for text pill legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             {/* Location pill */}
             <div className="absolute bottom-4 left-4 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
               <MapPin size={14} className="text-[#C9A96E]" />
