@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Users, Check } from 'lucide-react'
 import { db } from '@/lib/db'
+import { enumToUrlSlug, getRoomImagePath } from '@/lib/utils'
 import { SITE_NAME } from '@/lib/constants'
 
 export const metadata: Metadata = {
@@ -10,7 +12,6 @@ export const metadata: Metadata = {
     'Choose from Deluxe Twin, Deluxe Double, Deluxe Triple, and Family rooms at Hotel Tamarind Tree. Bed & Breakfast and Half Board packages available.',
 }
 
-// Fetch room types with their rate plans from the database
 async function getRoomTypes() {
   return db.roomType.findMany({
     include: {
@@ -28,23 +29,18 @@ const ROOM_FEATURES: Record<string, string[]> = {
   'deluxe-twin':   ['2 single beds', 'En-suite bathroom', 'Air conditioning', 'Free Wi-Fi', 'Wardrobe & mirror', 'Daily housekeeping'],
   'deluxe-double': ['1 double bed', 'En-suite bathroom', 'Air conditioning', 'Free Wi-Fi', 'Wardrobe & mirror', 'Daily housekeeping'],
   'deluxe-triple': ['3 single beds', 'En-suite bathroom', 'Air conditioning', 'Free Wi-Fi', 'Wardrobe & mirror', 'Daily housekeeping'],
-  'family':        ['4 beds', 'En-suite bathroom', 'Air conditioning', 'Free Wi-Fi', 'Wardrobe & mirror', 'Extra seating area', 'Daily housekeeping'],
+  'family':        ['4 beds', 'En-suite bathroom', 'Air conditioning', 'Free Wi-Fi', 'Wardrobe & mirror', 'Seating area', 'Daily housekeeping'],
 }
 
 const ROOM_DESCRIPTIONS: Record<string, string> = {
   'deluxe-twin':
-    'Thoughtfully designed for friends or colleagues, the Deluxe Twin features two comfortable single beds with warm Sri Lankan décor, a private en-suite bathroom, and everything you need for a restful stay after a day on safari.',
+    'Two comfortable beds in a stylishly appointed room — perfect for friends or colleagues exploring southern Sri Lanka and Yala National Park.',
   'deluxe-double':
-    'Our signature room for couples — a plush double bed, tasteful teak furnishings, and a private bathroom create a peaceful retreat in the heart of Tissamaharama.',
+    'A romantic retreat with a plush double bed, warm teak accents, and a private en-suite — just minutes from Yala.',
   'deluxe-triple':
-    'Spacious and versatile, the Deluxe Triple is fitted with three single beds and a private bathroom, making it ideal for small families, a trio of friends, or those who simply like extra space.',
+    'Spacious and versatile with three beds — ideal for families or a trio of safari adventurers who want room to breathe.',
   'family':
-    'Our largest room is built for families. Four beds, generous floor space, and all the comforts of home — giving you a relaxed base to plan your Yala safari and south coast adventures.',
-}
-
-const PLAN_LABELS: Record<string, { label: string; desc: string; color: string }> = {
-  BB: { label: 'Bed & Breakfast', desc: 'Room + morning breakfast', color: 'bg-[#FAF7F2] text-[#5e1e12] border border-[#C9A96E]/30' },
-  HB: { label: 'Half Board',      desc: 'Room + breakfast + lunch', color: 'bg-[#5e1e12]/5 text-[#5e1e12] border border-[#5e1e12]/20' },
+    'Generous floor space, four beds, and all the comforts of home — designed for families who explore together.',
 }
 
 export default async function RoomsPage() {
@@ -74,14 +70,16 @@ export default async function RoomsPage() {
 
       {/* ── Board plan legend ── */}
       <section className="bg-white border-b border-[#E5DDD3]">
-        <div className="container-hotel py-6 flex flex-wrap gap-4 items-center">
-          <span className="text-sm font-sans font-semibold text-[#2C1A12] mr-2">Board plans:</span>
-          {Object.entries(PLAN_LABELS).map(([code, { label, desc }]) => (
-            <div key={code} className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded text-xs font-sans font-bold text-[#5e1e12] bg-[#5e1e12]/10">{code}</span>
-              <span className="text-sm text-[#5a3d2b]"><strong>{label}</strong> — {desc}</span>
-            </div>
-          ))}
+        <div className="container-hotel py-5 flex flex-wrap gap-x-8 gap-y-2 items-center">
+          <span className="text-sm font-sans font-semibold text-[#2C1A12]">Board plans:</span>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded text-xs font-bold text-[#5e1e12] bg-[#5e1e12]/10">BB</span>
+            <span className="text-sm text-[#5a3d2b]"><strong>Bed &amp; Breakfast</strong> — room + morning breakfast</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded text-xs font-bold text-[#5e1e12] bg-[#5e1e12]/10">HB</span>
+            <span className="text-sm text-[#5a3d2b]"><strong>Half Board</strong> — room + breakfast + lunch</span>
+          </div>
         </div>
       </section>
 
@@ -89,25 +87,29 @@ export default async function RoomsPage() {
       <section className="py-16 bg-[#FAF7F2]">
         <div className="container-hotel space-y-10">
           {roomTypes.map((room, idx: number) => {
-            const features = ROOM_FEATURES[room.slug] ?? []
-            const description = ROOM_DESCRIPTIONS[room.slug] ?? room.description ?? ''
+            const urlSlug = enumToUrlSlug(room.slug) ?? 'family'
+            const features = ROOM_FEATURES[urlSlug] ?? []
+            const description = ROOM_DESCRIPTIONS[urlSlug] ?? room.description ?? ''
             const bbPlan = room.ratePlans.find((p: { mealPlan: string }) => p.mealPlan === 'BB')
             const hbPlan = room.ratePlans.find((p: { mealPlan: string }) => p.mealPlan === 'HB')
+            const imagePath = getRoomImagePath(urlSlug)
 
             return (
               <article
                 key={room.id}
-                id={room.slug}
+                id={urlSlug}
                 className="bg-white rounded-xl border border-[#E5DDD3] overflow-hidden shadow-[0_2px_20px_rgba(94,30,18,0.06)] hover:shadow-[0_8px_40px_rgba(94,30,18,0.10)] transition-shadow duration-300"
               >
                 <div className={`grid grid-cols-1 lg:grid-cols-2 ${idx % 2 === 1 ? 'lg:grid-flow-dense' : ''}`}>
                   {/* Image panel */}
-                  <div
-                    className={`relative min-h-72 lg:min-h-full bg-gradient-to-br from-[#5e1e12]/15 to-[#6D5840]/25 flex items-center justify-center ${idx % 2 === 1 ? 'lg:col-start-2' : ''}`}
-                  >
-                    <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                      <Users size={80} className="text-[#6D5840]" />
-                    </div>
+                  <div className={`relative min-h-72 lg:min-h-full ${idx % 2 === 1 ? 'lg:col-start-2' : ''}`}>
+                    <Image
+                      src={imagePath}
+                      alt={`${room.displayName} at Hotel Tamarind Tree`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
                     {/* Capacity badge */}
                     <div className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm">
                       <Users size={13} className="text-[#5e1e12]" />
@@ -115,7 +117,7 @@ export default async function RoomsPage() {
                     </div>
                     {/* Room count */}
                     <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-[#2C1A12]/70 backdrop-blur-sm rounded-full">
-                      <span className="text-xs font-sans text-white/80">{room._count.units} rooms available</span>
+                      <span className="text-xs font-sans text-white/90">{room._count.units} rooms available</span>
                     </div>
                   </div>
 
@@ -162,14 +164,14 @@ export default async function RoomsPage() {
 
                       <div className="flex flex-col sm:flex-row gap-3">
                         <Link
-                      href={`/book?room=${room.slug}`}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded bg-[#5e1e12] text-white font-sans font-semibold text-sm hover:bg-[#7a2a1c] hover:shadow-[0_4px_20px_rgba(94,30,18,0.35)] transition-all duration-200 group"
+                          href={`/book?room=${urlSlug}`}
+                          className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded bg-[#5e1e12] text-white font-sans font-semibold text-sm hover:bg-[#7a2a1c] hover:shadow-[0_4px_20px_rgba(94,30,18,0.35)] transition-all duration-200 group"
                         >
                           Book This Room
                           <ArrowRight size={15} className="transition-transform duration-150 group-hover:translate-x-1" />
                         </Link>
                         <Link
-                      href={`/rooms/${room.slug}`}
+                          href={`/rooms/${urlSlug}`}
                           className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded border border-[#5e1e12]/30 text-[#5e1e12] font-sans font-semibold text-sm hover:bg-[#5e1e12]/5 transition-colors duration-200"
                         >
                           Room Details
@@ -196,8 +198,8 @@ export default async function RoomsPage() {
             </div>
             <div>
               <p className="font-semibold text-[#2C1A12] mb-1">Children</p>
-              <p>Children of all ages are welcome.</p>
-              <p>Extra beds available on request.</p>
+              <p>Children of all ages welcome.</p>
+              <p>Extra beds on request.</p>
             </div>
             <div>
               <p className="font-semibold text-[#2C1A12] mb-1">Payments</p>

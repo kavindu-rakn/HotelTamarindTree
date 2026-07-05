@@ -86,3 +86,38 @@ export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str
   return str.slice(0, maxLength - 3) + '...'
 }
+
+// ─── Room type slug mapping ───────────────────────────────────
+// DB stores RoomTypeSlug enum (DELUXE_TWIN), URLs use kebab-case (deluxe-twin)
+
+export const ROOM_SLUG_TO_ENUM = {
+  'deluxe-twin':    'DELUXE_TWIN',
+  'deluxe-double':  'DELUXE_DOUBLE',
+  'deluxe-triple':  'DELUXE_TRIPLE',
+  'family':         'FAMILY',
+} as const
+
+export const ROOM_ENUM_TO_SLUG = {
+  'DELUXE_TWIN':    'deluxe-twin',
+  'DELUXE_DOUBLE':  'deluxe-double',
+  'DELUXE_TRIPLE':  'deluxe-triple',
+  'FAMILY':         'family',
+} as const
+
+export type RoomUrlSlug = keyof typeof ROOM_SLUG_TO_ENUM
+export type RoomEnumSlug = keyof typeof ROOM_ENUM_TO_SLUG
+
+/** Convert URL slug (deluxe-twin) → DB enum (DELUXE_TWIN) */
+export function urlSlugToEnum(slug: string): RoomEnumSlug | null {
+  return (ROOM_SLUG_TO_ENUM as Record<string, RoomEnumSlug>)[slug] ?? null
+}
+
+/** Convert DB enum (DELUXE_TWIN) → URL slug (deluxe-twin) */
+export function enumToUrlSlug(enumSlug: string): RoomUrlSlug | null {
+  return (ROOM_ENUM_TO_SLUG as Record<string, RoomUrlSlug>)[enumSlug] ?? null
+}
+
+/** Room image paths (stored in /public/rooms/) */
+export function getRoomImagePath(urlSlug: string): string {
+  return `/rooms/${urlSlug}.png`
+}

@@ -208,11 +208,16 @@ export default function HomePage() {
                 key={room.slug}
                 className="group bg-white rounded-lg overflow-hidden border border-[#E5DDD3] hover:shadow-[0_8px_40px_rgba(94,30,18,0.12)] hover:-translate-y-1 transition-all duration-300"
               >
-                {/* Room image placeholder */}
-                <div className="relative h-48 bg-gradient-to-br from-[#5e1e12]/10 to-[#6D5840]/20 overflow-hidden">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center opacity-30">
-                    <TreePine size={48} className="text-[#6D5840]" />
-                  </div>
+                {/* Room image */}
+                <div className="relative h-48 overflow-hidden">
+                  <Image
+                    src={`/rooms/${room.slug}.png`}
+                    alt={`${room.name} at Hotel Tamarind Tree`}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#2C1A12]/30 to-transparent" />
                   <div className="absolute bottom-3 left-3">
                     <span className="px-2 py-1 bg-white/90 backdrop-blur-sm rounded text-xs font-sans font-semibold text-[#5e1e12]">
                       Up to {room.maxGuests} guests
