@@ -45,27 +45,55 @@ function formatDate(iso: string) {
 
 // ─── Step Indicator ──────────────────────────────────────────────────────
 
-function StepIndicator({ step }: { step: Step }) {
+function StepIndicator({ step, setStep, roomsCount, hasSelectedRoom }: { step: Step, setStep: (s: Step) => void, roomsCount: number, hasSelectedRoom: boolean }) {
   const steps = ['Dates & Guests', 'Select Room', 'Your Details']
+  
+  const canGoToStep = (s: Step) => {
+    if (s === 1) return true;
+    if (s === 2) return roomsCount > 0;
+    if (s === 3) return hasSelectedRoom;
+    return false;
+  }
+
   return (
-    <div className="flex items-center gap-0 mb-10">
+    <div className="relative flex items-center justify-between mb-16 mx-4 sm:mx-12">
+      {/* Background connecting line */}
+      <div className="absolute left-0 right-0 top-4 h-[2px] bg-[#E5DDD3] z-0 translate-y-[-50%]" />
+      
+      {/* Active connecting line */}
+      <div 
+        className="absolute left-0 top-4 h-[2px] bg-[#5e1e12] z-0 translate-y-[-50%] transition-all duration-500 ease-in-out"
+        style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
+      />
+
       {steps.map((label, i) => {
         const s = (i + 1) as Step
         const active    = s === step
         const completed = s < step
+        const isClickable = canGoToStep(s)
+        
         return (
-          <div key={s} className="flex items-center flex-1">
-            <div className="flex flex-col items-center gap-1.5">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-sans transition-all ${
-                completed ? 'bg-[#5e1e12] text-white' : active ? 'bg-[#5e1e12] text-white ring-4 ring-[#5e1e12]/20' : 'bg-[#E5DDD3] text-[#6D5840]'
-              }`}>
-                {completed ? <Check size={14} /> : s}
-              </div>
-              <span className={`text-xs font-sans whitespace-nowrap hidden sm:block ${active ? 'text-[#5e1e12] font-semibold' : 'text-[#6D5840]'}`}>{label}</span>
+          <div 
+            key={s} 
+            className="relative z-10 flex flex-col items-center group outline-none"
+            onClick={() => { if (isClickable) setStep(s) }}
+            role={isClickable ? 'button' : 'default'}
+            tabIndex={isClickable ? 0 : -1}
+            onKeyDown={(e) => { if (isClickable && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setStep(s); } }}
+            style={{ cursor: isClickable ? 'pointer' : 'default' }}
+          >
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold font-sans transition-all duration-300 ${
+              completed 
+                ? 'bg-[#5e1e12] text-white border-2 border-[#5e1e12] shadow-md' 
+                : active 
+                  ? 'bg-[#5e1e12] text-white ring-4 ring-[#5e1e12]/20 border-2 border-[#5e1e12] shadow-md' 
+                  : 'bg-[#FAF7F2] border-2 border-[#E5DDD3] text-[#6D5840]'
+            } ${isClickable && !active ? 'group-hover:border-[#5e1e12]/50' : ''}`}>
+              {completed ? <Check size={14} /> : s}
             </div>
-            {i < steps.length - 1 && (
-              <div className={`flex-1 h-0.5 mx-2 transition-colors ${completed ? 'bg-[#5e1e12]' : 'bg-[#E5DDD3]'}`} />
-            )}
+            <span className={`absolute top-10 text-xs font-sans whitespace-nowrap transition-colors duration-300 ${active ? 'text-[#5e1e12] font-bold' : 'text-[#6D5840] font-medium'}`}>
+              {label}
+            </span>
           </div>
         )
       })}
@@ -79,8 +107,41 @@ export default function BookPage() {
   const searchParams = useSearchParams()
   const router       = useRouter()
 
-  // Step
-  const [step, setStep]   = useState<Step>(1)
+  // Step state with browser history integration
+  const [step, _setStep] = useState<Step>(1)
+  
+  const setStep = useCallback((newStep: Step) => {
+    _setStep(newStep)
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      url.searchParams.set('step', newStep.toString())
+      window.history.pushState({ step: newStep }, '', url.toString())
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // Set initial state for popstate
+    const params = new URLSearchParams(window.location.search)
+    const urlStep = params.get('step')
+    const initialStep = urlStep ? (Number(urlStep) as Step) : 1
+    if (initialStep !== 1) _setStep(initialStep)
+    
+    window.history.replaceState({ step: initialStep }, '', window.location.href)
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state && e.state.step) {
+        _setStep(e.state.step as Step)
+      } else {
+        const currentUrlStep = new URLSearchParams(window.location.search).get('step')
+        if (currentUrlStep) _setStep(Number(currentUrlStep) as Step)
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
 
   // Step 1 — search
   const [checkIn,  setCheckIn]  = useState(today())
@@ -194,7 +255,12 @@ export default function BookPage() {
       {/* ── Main booking area ── */}
       <section className="py-14 bg-[#FAF7F2] min-h-screen">
         <div className="container-hotel max-w-4xl">
-          <StepIndicator step={step} />
+          <StepIndicator 
+            step={step} 
+            setStep={setStep} 
+            roomsCount={rooms.length} 
+            hasSelectedRoom={selectedRoom !== null} 
+          />
 
           {/* ═══════════════ STEP 1 — Dates & Guests ═══════════════ */}
           {step === 1 && (
@@ -274,16 +340,13 @@ export default function BookPage() {
           {/* ═══════════════ STEP 2 — Room Selection ═══════════════ */}
           {step === 2 && (
             <div>
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                 <div>
                   <h2 className="font-serif text-2xl font-semibold text-[#2C1A12]">Available Rooms</h2>
                   <p className="text-sm text-[#6D5840] font-sans mt-1">
                     {nights} night{nights > 1 ? 's' : ''} · {formatDate(checkIn)} → {formatDate(checkOut)} · {guests} guest{guests > 1 ? 's' : ''}
                   </p>
                 </div>
-                <button onClick={() => setStep(1)} className="inline-flex items-center gap-1 text-sm text-[#5e1e12] font-sans hover:underline">
-                  <ChevronLeft size={14} /> Change dates
-                </button>
               </div>
 
               <div className="space-y-5">
@@ -358,23 +421,27 @@ export default function BookPage() {
                   </article>
                 ))}
               </div>
+
+              <div className="mt-8 pt-6 border-t border-[#E5DDD3]">
+                <button onClick={() => setStep(1)} className="inline-flex items-center gap-2 px-6 py-3 border border-[#E5DDD3] bg-white text-[#2C1A12] font-sans font-semibold text-sm rounded-lg hover:bg-[#FAF7F2] hover:border-[#5e1e12]/30 transition-colors">
+                  <ChevronLeft size={16} /> Back to Dates
+                </button>
+              </div>
             </div>
           )}
 
           {/* ═══════════════ STEP 3 — Guest Details ═══════════════ */}
           {step === 3 && selectedRoom && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Form */}
-              <div className="lg:col-span-2">
-                <div className="flex items-center gap-3 mb-6">
-                  <button onClick={() => setStep(2)} className="inline-flex items-center gap-1 text-sm text-[#5e1e12] font-sans hover:underline">
-                    <ChevronLeft size={14} /> Back
-                  </button>
-                  <div>
-                    <h2 className="font-serif text-2xl font-semibold text-[#2C1A12]">Your Details</h2>
-                    <p className="text-sm text-[#6D5840] font-sans">Complete your reservation — you&apos;ll be redirected to Stripe to pay.</p>
-                  </div>
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div>
+                  <h2 className="font-serif text-2xl font-semibold text-[#2C1A12]">Your Details</h2>
+                  <p className="text-sm text-[#6D5840] font-sans mt-1">Complete your reservation — you&apos;ll be redirected to Stripe to pay.</p>
                 </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Form */}
+                <div className="lg:col-span-2">
 
                 <div className="bg-white rounded-xl border border-[#E5DDD3] shadow-[0_2px_20px_rgba(94,30,18,0.06)] p-8 space-y-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -414,27 +481,35 @@ export default function BookPage() {
                     </div>
                   )}
 
-                  <button
-                    onClick={handleSubmit}
-                    disabled={submitting || !firstName || !lastName || !email}
-                    className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#5e1e12] text-white font-sans font-semibold text-sm rounded hover:bg-[#7a2a1c] hover:shadow-[0_4px_20px_rgba(94,30,18,0.35)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                  >
-                    {submitting ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
-                    {submitting ? 'Submitting your request…' : `Confirm Booking Request — USD $${selectedRate?.totalUsd?.toFixed(2)}`}
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-[#E5DDD3]">
+                    <button
+                      onClick={() => setStep(2)}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 border border-[#E5DDD3] bg-white text-[#2C1A12] font-sans font-semibold text-sm rounded hover:bg-[#FAF7F2] hover:border-[#5e1e12]/30 transition-all duration-200 order-2 sm:order-1"
+                    >
+                      <ChevronLeft size={16} /> Back
+                    </button>
+                    <button
+                      onClick={handleSubmit}
+                      disabled={submitting || !firstName || !lastName || !email}
+                      className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#5e1e12] text-white font-sans font-semibold text-sm rounded hover:bg-[#7a2a1c] hover:shadow-[0_4px_20px_rgba(94,30,18,0.35)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 order-1 sm:order-2"
+                    >
+                      {submitting ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
+                      {submitting ? 'Submitting your request…' : `Confirm Booking Request — USD $${selectedRate?.totalUsd?.toFixed(2)}`}
+                    </button>
+                  </div>
                   <p className="text-xs text-center text-[#6D5840] font-sans">No payment is taken now. Our team will contact you to confirm your reservation.</p>
                 </div>
               </div>
 
               {/* Summary sidebar */}
               <div className="lg:col-span-1">
-                <div className="sticky top-24 bg-white rounded-xl border border-[#E5DDD3] shadow-[0_4px_24px_rgba(94,30,18,0.08)] overflow-hidden">
-                  <div className="relative h-36">
+                <div className="h-full flex flex-col bg-white rounded-xl border border-[#E5DDD3] shadow-[0_4px_24px_rgba(94,30,18,0.08)] overflow-hidden">
+                  <div className="relative h-60 shrink-0">
                     <Image src={selectedRoom.imagePath} alt={selectedRoom.displayName} fill className="object-cover" sizes="300px" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <p className="absolute bottom-3 left-3 font-serif text-white font-semibold text-lg">{selectedRoom.displayName}</p>
                   </div>
-                  <div className="p-5 space-y-3 text-sm font-sans">
+                  <div className="p-6 flex-1 flex flex-col justify-between text-sm font-sans gap-2">
                     <div className="flex justify-between text-[#5a3d2b]">
                       <span>Board plan</span>
                       <span className="font-semibold">{selectedPlan === 'BB' ? 'Bed & Breakfast' : 'Half Board'}</span>
@@ -459,15 +534,18 @@ export default function BookPage() {
                       <span>Rate</span>
                       <span className="font-semibold">${selectedRate?.pricePerNight}/night</span>
                     </div>
-                    <div className="border-t border-[#E5DDD3] pt-3 flex justify-between items-center">
+                    <div className="border-t border-[#E5DDD3] pt-4 flex justify-between items-center">
                       <span className="font-semibold text-[#2C1A12]">Total</span>
                       <span className="font-serif text-xl font-semibold text-[#5e1e12]">USD ${selectedRate?.totalUsd?.toFixed(2)}</span>
                     </div>
-                    <p className="text-xs text-[#6D5840]">✓ Best rate — book direct</p>
-                    <p className="text-xs text-[#6D5840]">✓ Secure payment via Stripe</p>
+                    <div>
+                      <p className="text-xs text-[#6D5840] mb-1.5">✓ Best rate — book direct</p>
+                      <p className="text-xs text-[#6D5840]">✓ Secure payment via Stripe</p>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
             </div>
           )}
         </div>

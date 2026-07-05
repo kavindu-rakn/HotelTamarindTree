@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, Star, ArrowRight, Wifi, Utensils, TreePine, Shield } from 'lucide-react'
 import { SITE_NAME } from '@/lib/constants'
+import { getRoomImagePath } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: `${SITE_NAME} | Boutique Hotel in Tissamaharama, Sri Lanka`,
@@ -211,7 +212,7 @@ export default function HomePage() {
                 {/* Room image */}
                 <div className="relative h-48 overflow-hidden">
                   <Image
-                    src={`/rooms/${room.slug}.png`}
+                    src={getRoomImagePath(room.slug)}
                     alt={`${room.name} at Hotel Tamarind Tree`}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"

@@ -119,5 +119,6 @@ export function enumToUrlSlug(enumSlug: string): RoomUrlSlug | null {
 
 /** Room image paths (stored in /public/rooms/) */
 export function getRoomImagePath(urlSlug: string): string {
+  if (urlSlug === 'family') return `/rooms/family-updated.png`
   return `/rooms/${urlSlug}.png`
 }
