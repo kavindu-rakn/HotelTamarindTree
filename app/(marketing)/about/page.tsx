@@ -153,7 +153,7 @@ export default function AboutPage() {
           {/* Map */}
           <div className="relative h-96 rounded-2xl border border-[#E5DDD3] overflow-hidden shadow-[0_8px_40px_rgba(94,30,18,0.06)]">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126938.83446862081!2d81.21590462706346!3d6.286395123902319!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae69956d773fb23%3A0xe5f9ed084e36abef!2sTissamaharama%2C%20Sri%20Lanka!5e0!3m2!1sen!2sus!4v1715000000000!5m2!1sen!2sus"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d44866.69887344891!2d81.25747017438617!3d6.303957712123941!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae69d001da5d915%3A0x738ce221e991e6f5!2sHotel%20Tamarind%20Tree%20Thissamaharamaya!5e0!3m2!1sen!2slk!4v1783248728524!5m2!1sen!2slk"
               width="100%"
               height="100%"
               style={{ border: 0 }}
