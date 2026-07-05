@@ -89,20 +89,22 @@ export default function HomePage() {
         className="relative min-h-screen flex flex-col justify-center overflow-hidden"
         aria-label="Hero"
       >
-        {/* Hero photo — full bleed */}
-        <Image
-          src="/gallery/T011.jpg"
-          alt="Hotel Tamarind Tree — pool and gardens, Tissamaharama"
-          fill
-          priority
-          className="object-cover object-center"
-          sizes="100vw"
-        />
-
-        {/* Dark overlay for text legibility */}
+        {/* Background — placeholder gradient */}
         <div
           className="absolute inset-0 z-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(44,26,18,0.52) 0%, rgba(44,26,18,0.35) 50%, rgba(44,26,18,0.72) 100%)' }}
+          style={{
+            background: 'linear-gradient(135deg, #3d1209 0%, #5e1e12 30%, #6D5840 70%, #4e3f2d 100%)',
+          }}
+          aria-hidden="true"
+        />
+
+        {/* Decorative pattern overlay */}
+        <div
+          className="absolute inset-0 z-0 opacity-[0.07]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, #FAF7F2 1px, transparent 0)`,
+            backgroundSize: '32px 32px',
+          }}
           aria-hidden="true"
         />
 
