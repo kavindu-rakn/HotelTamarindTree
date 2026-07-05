@@ -45,7 +45,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `radial-gradient(circle at 1px 1px, #FAF7F2 1px, transparent 0)`, backgroundSize: '28px 28px' }} aria-hidden="true" />
         <div className="relative z-10 container-hotel text-center">
           <p className="text-label text-[#C9A96E] mb-3">Our Story</p>
-          <h1 className="text-display text-white mb-4">About Hotel Tamarind Tree</h1>
+          <h1 className="text-display text-[#C9A96E] mb-4">About Hotel Tamarind Tree</h1>
           <div className="w-16 h-0.5 bg-[#C9A96E] mx-auto mb-5" />
           <p className="max-w-xl mx-auto text-white/75 font-sans leading-relaxed">
             A family-run boutique hotel in Tissamaharama, built on a deep love of Sri Lanka&apos;s southern landscape and a commitment to authentic, warm hospitality.

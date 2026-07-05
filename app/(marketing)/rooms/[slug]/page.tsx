@@ -113,7 +113,7 @@ export default async function RoomDetailPage({ params }: Props) {
             <ArrowLeft size={14} />
             All Rooms
           </Link>
-          <h1 className="text-display text-white mb-3" style={{ textShadow: '0 2px 16px rgba(0,0,0,0.4)' }}>
+          <h1 className="text-display text-[#C9A96E] mb-3" style={{ textShadow: '0 2px 16px rgba(0,0,0,0.4)' }}>
             {room.displayName}
           </h1>
           <div className="flex flex-wrap gap-4 mt-2">

@@ -19,7 +19,7 @@ export default function BookPage() {
         <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `radial-gradient(circle at 1px 1px, #FAF7F2 1px, transparent 0)`, backgroundSize: '28px 28px' }} aria-hidden="true" />
         <div className="relative z-10 container-hotel text-center">
           <p className="text-label text-[#C9A96E] mb-3">Reservations</p>
-          <h1 className="text-display text-white mb-4">Book Your Stay</h1>
+          <h1 className="text-display text-[#C9A96E] mb-4">Book Your Stay</h1>
           <div className="w-16 h-0.5 bg-[#C9A96E] mx-auto" />
         </div>
       </section>

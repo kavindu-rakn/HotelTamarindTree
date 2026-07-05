@@ -33,7 +33,7 @@ export default function GalleryPage() {
         />
         <div className="relative z-10 container-hotel text-center">
           <p className="text-label text-[#C9A96E] mb-3">Our Space</p>
-          <h1 className="text-display text-white mb-4">Gallery</h1>
+          <h1 className="text-display text-[#C9A96E] mb-4">Gallery</h1>
           <div className="w-16 h-0.5 bg-[#C9A96E] mx-auto mb-5" />
           <p className="max-w-xl mx-auto text-white/75 font-sans leading-relaxed">
             Take a visual journey through Hotel Tamarind Tree. From our inviting pool and lush tropical gardens to our beautifully designed rooms and dining spaces.

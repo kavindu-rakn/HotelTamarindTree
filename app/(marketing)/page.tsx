@@ -118,7 +118,7 @@ export default function HomePage() {
           </div>
 
           {/* Hotel name */}
-          <h1 className="text-display text-white mb-2 animate-fade-up" style={{ textShadow: '0 2px 24px rgba(0,0,0,0.3)' }}>
+          <h1 className="text-display text-[#C9A96E] mb-2 animate-fade-up" style={{ textShadow: '0 2px 24px rgba(0,0,0,0.3)' }}>
             Hotel Tamarind Tree
           </h1>
 

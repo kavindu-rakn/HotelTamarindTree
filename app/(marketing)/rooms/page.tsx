@@ -60,7 +60,7 @@ export default async function RoomsPage() {
         />
         <div className="relative z-10 container-hotel text-center">
           <p className="text-label text-[#C9A96E] mb-3">Accommodation</p>
-          <h1 className="text-display text-white mb-4">Rooms &amp; Rates</h1>
+          <h1 className="text-display text-[#C9A96E] mb-4">Rooms &amp; Rates</h1>
           <div className="w-16 h-0.5 bg-[#C9A96E] mx-auto mb-5" />
           <p className="max-w-xl mx-auto text-white/75 font-sans leading-relaxed">
             Twenty rooms across four categories, each designed with natural materials, warm tones, and everything you need for a comfortable stay in Sri Lanka&apos;s Deep South.

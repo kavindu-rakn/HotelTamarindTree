@@ -43,7 +43,7 @@ export default function ContactPage() {
         <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: `radial-gradient(circle at 1px 1px, #FAF7F2 1px, transparent 0)`, backgroundSize: '28px 28px' }} aria-hidden="true" />
         <div className="relative z-10 container-hotel text-center">
           <p className="text-label text-[#C9A96E] mb-3">Get In Touch</p>
-          <h1 className="text-display text-white mb-4">Contact Us</h1>
+          <h1 className="text-display text-[#C9A96E] mb-4">Contact Us</h1>
           <div className="w-16 h-0.5 bg-[#C9A96E] mx-auto mb-5" />
           <p className="max-w-md mx-auto text-white/75 font-sans leading-relaxed">
             We&apos;re here to help plan your perfect stay. Reach out with any questions, requests, or reservation enquiries.
