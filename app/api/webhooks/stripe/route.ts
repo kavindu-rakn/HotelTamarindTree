@@ -3,10 +3,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { db } from '@/lib/db'
-import { resend, FROM_EMAIL, HOTEL_EMAIL } from '@/lib/resend'
+import { getResend, FROM_EMAIL, HOTEL_EMAIL } from '@/lib/resend'
 import { countNights, guestConfirmationEmailHtml, staffNotificationEmailHtml } from '@/lib/booking-utils'
-
-export const config = { api: { bodyParser: false } }
 
 export async function POST(req: NextRequest) {
   const sig     = req.headers.get('stripe-signature') ?? ''
@@ -61,7 +59,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Send guest confirmation email
-    await resend.emails.send({
+    await getResend().emails.send({
       from:    FROM_EMAIL,
       to:      booking.guest.email,
       subject: `Booking Confirmed — ${booking.confirmationCode} | Hotel Tamarind Tree`,
@@ -69,7 +67,7 @@ export async function POST(req: NextRequest) {
     })
 
     // Send staff notification email
-    await resend.emails.send({
+    await getResend().emails.send({
       from:    FROM_EMAIL,
       to:      HOTEL_EMAIL,
       subject: `New Booking: ${booking.confirmationCode} — ${booking.guest.name}`,

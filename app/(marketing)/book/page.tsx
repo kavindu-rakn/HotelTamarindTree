@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import Image from 'next/image'
 import { useSearchParams, useRouter } from 'next/navigation'
 import {
@@ -104,6 +104,14 @@ function StepIndicator({ step, setStep, roomsCount, hasSelectedRoom }: { step: S
 // ─── Main Component ───────────────────────────────────────────────────────
 
 export default function BookPage() {
+  return (
+    <Suspense fallback={null}>
+      <BookPageInner />
+    </Suspense>
+  )
+}
+
+function BookPageInner() {
   const searchParams = useSearchParams()
   const router       = useRouter()
 

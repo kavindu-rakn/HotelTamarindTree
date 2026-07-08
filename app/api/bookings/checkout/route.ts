@@ -4,7 +4,7 @@
 // PayHere payment integration will be added in a later phase.
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { resend, FROM_EMAIL, HOTEL_EMAIL } from '@/lib/resend'
+import { getResend, FROM_EMAIL, HOTEL_EMAIL } from '@/lib/resend'
 import {
   generateConfirmationCode,
   assignAvailableUnit,
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Guest confirmation (fire-and-forget — don't block the response)
-    resend.emails.send({
+    getResend().emails.send({
       from:    FROM_EMAIL,
       to:      email.toLowerCase(),
       subject: `Booking Request Received — ${confirmationCode} | Hotel Tamarind Tree`,
@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
     }).catch(err => console.error('[email] guest confirmation failed:', err))
 
     // Staff notification
-    resend.emails.send({
+    getResend().emails.send({
       from:    FROM_EMAIL,
       to:      HOTEL_EMAIL,
       subject: `New Booking Request: ${confirmationCode} — ${guestName}`,
