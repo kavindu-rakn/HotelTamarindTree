@@ -182,7 +182,15 @@ function BookPageInner() {
     setRooms([])
     try {
       const res = await fetch(`/api/availability?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`)
-      const data = await res.json()
+
+      let data
+      try {
+        data = await res.json()
+      } catch {
+        setSearchError('The server took too long to respond. Please try again in a moment.')
+        return
+      }
+
       if (!res.ok) { setSearchError(data.error ?? 'Search failed'); return }
       setRooms(data.results)
       if (data.results.length === 0) {
