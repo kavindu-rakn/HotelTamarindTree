@@ -278,7 +278,7 @@ function BookPageInner() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                 {/* Check-in */}
-                <div>
+                <div className="min-w-0">
                   <label className="block text-xs font-sans font-semibold text-[#6D5840] mb-2 uppercase tracking-wider">
                     <CalendarDays size={12} className="inline mr-1" /> Check-in
                   </label>
@@ -287,11 +287,11 @@ function BookPageInner() {
                     value={checkIn}
                     min={today()}
                     onChange={e => setCheckIn(e.target.value)}
-                    className="w-full px-4 py-4 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
+                    className="w-full min-w-0 px-4 py-4 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
                   />
                 </div>
                 {/* Check-out */}
-                <div>
+                <div className="min-w-0">
                   <label className="block text-xs font-sans font-semibold text-[#6D5840] mb-2 uppercase tracking-wider">
                     <CalendarDays size={12} className="inline mr-1" /> Check-out
                   </label>
@@ -300,18 +300,18 @@ function BookPageInner() {
                     value={checkOut}
                     min={checkIn}
                     onChange={e => setCheckOut(e.target.value)}
-                    className="w-full px-4 py-4 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
+                    className="w-full min-w-0 px-4 py-4 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
                   />
                 </div>
                 {/* Guests */}
-                <div>
+                <div className="min-w-0">
                   <label className="block text-xs font-sans font-semibold text-[#6D5840] mb-2 uppercase tracking-wider">
                     <Users size={12} className="inline mr-1" /> Guests
                   </label>
                   <select
                     value={guests}
                     onChange={e => setGuests(Number(e.target.value))}
-                    className="w-full px-4 py-4 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
+                    className="w-full min-w-0 px-4 py-4 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
                   >
                     {[1,2,3,4,5,6,7,8].map(n => (
                       <option key={n} value={n}>{n} guest{n > 1 ? 's' : ''}</option>
