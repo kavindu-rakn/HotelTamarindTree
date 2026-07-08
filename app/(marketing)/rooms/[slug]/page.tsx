@@ -206,7 +206,7 @@ export default async function RoomDetailPage({ params }: Props) {
                 <div className="pt-4 border-t border-[#E5DDD3] space-y-2 text-xs text-[#6D5840] font-sans">
                   <p>✓ Best rate guarantee — book direct</p>
                   <p>✓ Flexible enquiry &amp; cancellation</p>
-                  <p>✓ Secure payment via Stripe</p>
+                  <p>✓ No payment required now</p>
                 </div>
               </div>
             </div>

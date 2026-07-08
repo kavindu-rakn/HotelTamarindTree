@@ -14,6 +14,53 @@ import {
 } from '@/lib/booking-utils'
 import { urlSlugToEnum } from '@/lib/utils'
 
+// Postgres exclusion-constraint violation (23P01) — thrown when two
+// concurrent requests race for the same room unit + date range. Prisma
+// doesn't have a known error code for EXCLUDE constraints, so we match
+// on the constraint name in the underlying error message.
+function isOverlapConflict(err: unknown): boolean {
+  return err instanceof Error && err.message.includes('bookings_no_overlap_excl')
+}
+
+async function createBookingWithRetry(params: {
+  roomTypeId: string
+  checkInDate: Date
+  checkOutDate: Date
+  guestId: string
+  ratePlanId: string
+  numGuests: number
+  totalUsd: number
+  specialRequests: string | null
+}, maxAttempts = 3) {
+  const { roomTypeId, checkInDate, checkOutDate, ...rest } = params
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const unitId = await assignAvailableUnit(roomTypeId, checkInDate, checkOutDate)
+    if (!unitId) return null
+
+    try {
+      return await db.booking.create({
+        data: {
+          confirmationCode: generateConfirmationCode(),
+          roomUnitId:       unitId,
+          guestId:          rest.guestId,
+          ratePlanId:       rest.ratePlanId,
+          checkIn:          checkInDate,
+          checkOut:         checkOutDate,
+          numGuests:        rest.numGuests,
+          status:           'PENDING',
+          totalPriceUsd:    rest.totalUsd,
+          paymentStatus:    'UNPAID',
+          specialRequests:  rest.specialRequests,
+        },
+      })
+    } catch (err) {
+      if (isOverlapConflict(err)) continue // another request took this unit — retry with fresh availability
+      throw err
+    }
+  }
+  return null
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -57,12 +104,6 @@ export async function POST(req: NextRequest) {
     })
     if (!ratePlan) return NextResponse.json({ error: 'Rate plan not found' }, { status: 404 })
 
-    // ── Assign a unit ─────────────────────────────────────────────
-    const unitId = await assignAvailableUnit(roomType.id, checkInDate, checkOutDate)
-    if (!unitId) {
-      return NextResponse.json({ error: 'No rooms available for these dates' }, { status: 409 })
-    }
-
     // ── Create or find guest ──────────────────────────────────────
     const guestName = `${firstName.trim()} ${lastName.trim()}`
     let guest = await db.guest.findFirst({ where: { email: email.toLowerCase() } })
@@ -76,23 +117,21 @@ export async function POST(req: NextRequest) {
     const pricePerNight = Number(ratePlan.priceUsd)
     const totalUsd      = pricePerNight * nights
 
-    // ── Create PENDING booking ────────────────────────────────────
-    const confirmationCode = generateConfirmationCode()
-    await db.booking.create({
-      data: {
-        confirmationCode,
-        roomUnitId:      unitId,
-        guestId:         guest.id,
-        ratePlanId:      ratePlan.id,
-        checkIn:         checkInDate,
-        checkOut:        checkOutDate,
-        numGuests:       numGuests ?? 1,
-        status:          'PENDING',
-        totalPriceUsd:   totalUsd,
-        paymentStatus:   'UNPAID',
-        specialRequests: specialRequests || null,
-      },
+    // ── Assign a unit + create PENDING booking (retry on race) ─────
+    const booking = await createBookingWithRetry({
+      roomTypeId:      roomType.id,
+      checkInDate,
+      checkOutDate,
+      guestId:         guest.id,
+      ratePlanId:      ratePlan.id,
+      numGuests:       numGuests ?? 1,
+      totalUsd,
+      specialRequests: specialRequests || null,
     })
+    if (!booking) {
+      return NextResponse.json({ error: 'This room is no longer available for the selected dates. Please try again.' }, { status: 409 })
+    }
+    const confirmationCode = booking.confirmationCode
 
     // ── Send emails ───────────────────────────────────────────────
     const checkInStr  = checkInDate.toISOString().slice(0, 10)
@@ -111,11 +150,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Guest confirmation (fire-and-forget — don't block the response)
+    // Resend resolves with { data, error } rather than throwing on API errors,
+    // so both must be checked to avoid silently swallowing send failures.
     getResend().emails.send({
       from:    FROM_EMAIL,
       to:      email.toLowerCase(),
       subject: `Booking Request Received — ${confirmationCode} | Hotel Tamarind Tree`,
       html:    guestConfirmationEmailHtml(emailParams),
+    }).then(({ error }) => {
+      if (error) console.error('[email] guest confirmation failed:', error)
     }).catch(err => console.error('[email] guest confirmation failed:', err))
 
     // Staff notification
@@ -129,6 +172,8 @@ export async function POST(req: NextRequest) {
         guestPhone:  phone ?? '',
         specialReqs: specialRequests ?? '',
       }),
+    }).then(({ error }) => {
+      if (error) console.error('[email] staff notification failed:', error)
     }).catch(err => console.error('[email] staff notification failed:', err))
 
     // ── Return success ────────────────────────────────────────────

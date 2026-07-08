@@ -453,7 +453,7 @@ function BookPageInner() {
               <div className="flex items-center gap-3 mb-6">
                 <div>
                   <h2 className="font-serif text-2xl font-semibold text-[#2C1A12]">Your Details</h2>
-                  <p className="text-sm text-[#6D5840] font-sans mt-1">Complete your reservation — you&apos;ll be redirected to Stripe to pay.</p>
+                  <p className="text-sm text-[#6D5840] font-sans mt-1">Complete your reservation — no payment is required now.</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -557,7 +557,7 @@ function BookPageInner() {
                     </div>
                     <div>
                       <p className="text-xs text-[#6D5840] mb-1.5">✓ Best rate — book direct</p>
-                      <p className="text-xs text-[#6D5840]">✓ Secure payment via Stripe</p>
+                      <p className="text-xs text-[#6D5840]">✓ No payment required now</p>
                     </div>
                   </div>
                 </div>
