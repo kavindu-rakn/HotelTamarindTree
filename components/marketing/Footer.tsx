@@ -52,43 +52,46 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Navigation column */}
-        <div>
-          <h3 className="font-serif text-base font-semibold text-[#C9A96E] mb-4 tracking-wide">Explore</h3>
-          <ul className="space-y-2.5">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="text-sm text-white/70 hover:text-[#C9A96E] transition-colors duration-150"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* Navigation + Rooms — side by side on mobile, unchanged from md up */}
+        <div className="grid grid-cols-2 gap-8 md:contents">
+          {/* Navigation column */}
+          <div>
+            <h3 className="font-serif text-base font-semibold text-[#C9A96E] mb-4 tracking-wide">Explore</h3>
+            <ul className="space-y-2.5">
+              {NAV_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-white/70 hover:text-[#C9A96E] transition-colors duration-150"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* Rooms column */}
-        <div>
-          <h3 className="font-serif text-base font-semibold text-[#C9A96E] mb-4 tracking-wide">Rooms</h3>
-          <ul className="space-y-2.5">
-            {[
-              { label: 'Deluxe Twin',   href: '/rooms/deluxe-twin' },
-              { label: 'Deluxe Double', href: '/rooms/deluxe-double' },
-              { label: 'Deluxe Triple', href: '/rooms/deluxe-triple' },
-              { label: 'Family Room',   href: '/rooms/family' },
-            ].map((room) => (
-              <li key={room.href}>
-                <Link
-                  href={room.href}
-                  className="text-sm text-white/70 hover:text-[#C9A96E] transition-colors duration-150"
-                >
-                  {room.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {/* Rooms column */}
+          <div>
+            <h3 className="font-serif text-base font-semibold text-[#C9A96E] mb-4 tracking-wide">Rooms</h3>
+            <ul className="space-y-2.5">
+              {[
+                { label: 'Deluxe Twin',   href: '/rooms/deluxe-twin' },
+                { label: 'Deluxe Double', href: '/rooms/deluxe-double' },
+                { label: 'Deluxe Triple', href: '/rooms/deluxe-triple' },
+                { label: 'Family Room',   href: '/rooms/family' },
+              ].map((room) => (
+                <li key={room.href}>
+                  <Link
+                    href={room.href}
+                    className="text-sm text-white/70 hover:text-[#C9A96E] transition-colors duration-150"
+                  >
+                    {room.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* Contact column */}
