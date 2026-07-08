@@ -29,7 +29,13 @@ export async function GET(req: NextRequest) {
 
   const nights = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
 
-  const roomTypes = await findAvailableRoomTypes(checkIn, checkOut, guests)
+  let roomTypes
+  try {
+    roomTypes = await findAvailableRoomTypes(checkIn, checkOut, guests)
+  } catch (err) {
+    console.error('[availability] database error:', err)
+    return NextResponse.json({ error: 'Search failed. Please try again in a moment.' }, { status: 503 })
+  }
 
   const results = roomTypes.map(rt => {
     const urlSlug = enumToUrlSlug(rt.slug) ?? rt.slug.toLowerCase()

@@ -112,6 +112,20 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ─────────────────────────────────────────────────────
+   Form controls
+   ───────────────────────────────────────────────────── */
+
+/* iOS WebKit (Safari & Chrome, both share the engine) sizes native date/time
+   inputs using their own internal chrome, ignoring the element's CSS width —
+   this forces them to obey normal box sizing like any other input. */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ─────────────────────────────────────────────────────
    Scrollbar (webkit)
    ───────────────────────────────────────────────────── */
 
