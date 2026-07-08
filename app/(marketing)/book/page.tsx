@@ -264,11 +264,11 @@ export default function BookPage() {
 
           {/* ═══════════════ STEP 1 — Dates & Guests ═══════════════ */}
           {step === 1 && (
-            <div className="bg-white rounded-xl border border-[#E5DDD3] shadow-[0_2px_20px_rgba(94,30,18,0.06)] p-8 md:p-10">
-              <h2 className="font-serif text-2xl font-semibold text-[#2C1A12] mb-2">When are you visiting?</h2>
-              <p className="text-sm text-[#6D5840] font-sans mb-8">Choose your dates and we&apos;ll show you what&apos;s available.</p>
+            <div className="bg-white rounded-xl border border-[#E5DDD3] shadow-[0_2px_20px_rgba(94,30,18,0.06)] p-8 md:p-14">
+              <h2 className="font-serif text-3xl font-semibold text-[#2C1A12] mb-2">When are you visiting?</h2>
+              <p className="text-sm text-[#6D5840] font-sans mb-10">Choose your dates and we&apos;ll show you what&apos;s available.</p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                 {/* Check-in */}
                 <div>
                   <label className="block text-xs font-sans font-semibold text-[#6D5840] mb-2 uppercase tracking-wider">
@@ -279,7 +279,7 @@ export default function BookPage() {
                     value={checkIn}
                     min={today()}
                     onChange={e => setCheckIn(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
+                    className="w-full px-4 py-4 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
                   />
                 </div>
                 {/* Check-out */}
@@ -292,7 +292,7 @@ export default function BookPage() {
                     value={checkOut}
                     min={checkIn}
                     onChange={e => setCheckOut(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
+                    className="w-full px-4 py-4 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
                   />
                 </div>
                 {/* Guests */}
@@ -303,7 +303,7 @@ export default function BookPage() {
                   <select
                     value={guests}
                     onChange={e => setGuests(Number(e.target.value))}
-                    className="w-full px-4 py-3 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
+                    className="w-full px-4 py-4 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors"
                   >
                     {[1,2,3,4,5,6,7,8].map(n => (
                       <option key={n} value={n}>{n} guest{n > 1 ? 's' : ''}</option>
@@ -313,27 +313,30 @@ export default function BookPage() {
               </div>
 
               {nights > 0 && (
-                <p className="text-sm text-[#6D5840] font-sans mb-6">
+                <p className="text-sm text-[#6D5840] font-sans">
                   <span className="font-semibold text-[#2C1A12]">{nights} night{nights > 1 ? 's' : ''}</span>
                   {' '}— {formatDate(checkIn)} to {formatDate(checkOut)}
                 </p>
               )}
 
               {searchError && (
-                <div className="flex items-start gap-2 p-4 bg-red-50 border border-red-200 rounded-lg mb-6">
+                <div className="flex items-start gap-2 p-4 bg-red-50 border border-red-200 rounded-lg mt-6">
                   <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
                   <p className="text-sm text-red-700 font-sans">{searchError}</p>
                 </div>
               )}
 
-              <button
-                onClick={searchAvailability}
-                disabled={loading || nights < 1}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#5e1e12] text-white font-sans font-semibold text-sm rounded hover:bg-[#7a2a1c] hover:shadow-[0_4px_20px_rgba(94,30,18,0.35)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-              >
-                {loading ? <Loader2 size={16} className="animate-spin" /> : <CalendarDays size={16} />}
-                {loading ? 'Searching…' : 'Check Availability'}
-              </button>
+              <div className="flex items-center justify-between gap-6 mt-10 pt-8 border-t border-[#E5DDD3]">
+                <p className="hidden sm:block text-xs text-[#6D5840] font-sans max-w-[220px]">No payment required yet — we&apos;ll just check what&apos;s open for your dates.</p>
+                <button
+                  onClick={searchAvailability}
+                  disabled={loading || nights < 1}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#5e1e12] text-white font-sans font-semibold text-sm rounded hover:bg-[#7a2a1c] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shrink-0 group"
+                >
+                  {loading ? 'Searching…' : 'Check Available Rooms'}
+                  {loading ? <Loader2 size={16} className="animate-spin" /> : <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />}
+                </button>
+              </div>
             </div>
           )}
 
@@ -342,7 +345,7 @@ export default function BookPage() {
             <div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                 <div>
-                  <h2 className="font-serif text-2xl font-semibold text-[#2C1A12]">Available Rooms</h2>
+                  <h2 className="font-serif text-2xl font-semibold text-[#2C1A12]">Select Your Room</h2>
                   <p className="text-sm text-[#6D5840] font-sans mt-1">
                     {nights} night{nights > 1 ? 's' : ''} · {formatDate(checkIn)} → {formatDate(checkOut)} · {guests} guest{guests > 1 ? 's' : ''}
                   </p>
@@ -365,66 +368,64 @@ export default function BookPage() {
                         <Image src={room.imagePath} alt={room.displayName} fill className="object-cover" sizes="220px" />
                       </div>
                       {/* Content */}
-                      <div className="p-6 flex flex-col justify-between gap-4">
-                        <div>
-                          <div className="flex items-start justify-between gap-2 flex-wrap">
-                            <h3 className="font-serif text-xl font-semibold text-[#2C1A12]">{room.displayName}</h3>
-                            <div className="flex items-center gap-1 text-xs text-[#6D5840] font-sans">
-                              <BedDouble size={13} className="text-[#5e1e12]" />
-                              {room.bedConfig} · max {room.maxOccupancy} guests
-                            </div>
-                          </div>
-
-                          {/* Board plan toggle */}
-                          <div className="flex gap-2 mt-4">
-                            {(['BB', 'HB'] as MealPlan[]).map(plan => {
-                              const rate = room.rates[plan]
-                              if (!rate) return null
-                              const active = selectedRoom?.id === room.id && selectedPlan === plan
-                              return (
-                                <button
-                                  key={plan}
-                                  onClick={() => { setSelectedRoom(room); setSelectedPlan(plan) }}
-                                  className={`flex-1 text-left rounded-lg border px-4 py-3 transition-all duration-150 ${
-                                    active
-                                      ? 'border-[#5e1e12] bg-[#5e1e12]/5'
-                                      : 'border-[#E5DDD3] hover:border-[#5e1e12]/40'
-                                  }`}
-                                >
-                                  <div className="flex items-center justify-between gap-2">
-                                    <div>
-                                      <span className={`text-xs font-sans font-bold px-1.5 py-0.5 rounded ${active ? 'bg-[#5e1e12] text-white' : 'bg-[#E5DDD3] text-[#5e1e12]'}`}>{plan}</span>
-                                      <p className="text-xs text-[#6D5840] font-sans mt-1">
-                                        {plan === 'BB' ? 'Bed & Breakfast' : 'Half Board'}
-                                      </p>
-                                    </div>
-                                    <div className="text-right">
-                                      <p className="font-serif text-lg font-semibold text-[#5e1e12]">${rate.pricePerNight}<span className="text-xs font-sans font-normal text-[#6D5840]">/night</span></p>
-                                      <p className="text-xs text-[#6D5840] font-sans">Total: ${rate.totalUsd}</p>
-                                    </div>
-                                  </div>
-                                </button>
-                              )
-                            })}
+                      <div className="p-6 flex flex-col justify-center gap-4">
+                        <div className="flex items-start justify-between gap-2 flex-wrap">
+                          <h3 className="font-serif text-xl font-semibold text-[#2C1A12]">{room.displayName}</h3>
+                          <div className="flex items-center gap-1 text-xs text-[#6D5840] font-sans">
+                            <BedDouble size={13} className="text-[#5e1e12]" />
+                            {room.bedConfig} · max {room.maxOccupancy} guests
                           </div>
                         </div>
 
-                        <button
-                          onClick={() => { setSelectedRoom(room); setStep(3) }}
-                          className="self-start inline-flex items-center gap-2 px-6 py-3 bg-[#5e1e12] text-white font-sans font-semibold text-sm rounded hover:bg-[#7a2a1c] transition-all duration-200 group"
-                        >
-                          Select This Room
-                          <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-                        </button>
+                        {/* Board plan toggle */}
+                        <div className="flex gap-2">
+                          {(['BB', 'HB'] as MealPlan[]).map(plan => {
+                            const rate = room.rates[plan]
+                            if (!rate) return null
+                            const active = selectedRoom?.id === room.id && selectedPlan === plan
+                            return (
+                              <button
+                                key={plan}
+                                onClick={() => { setSelectedRoom(room); setSelectedPlan(plan) }}
+                                className={`flex-1 text-left rounded-lg border px-4 py-3 transition-all duration-150 ${
+                                  active
+                                    ? 'border-[#5e1e12] bg-[#5e1e12]/5'
+                                    : 'border-[#E5DDD3] hover:border-[#5e1e12]/40'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <div>
+                                    <span className={`text-xs font-sans font-bold px-1.5 py-0.5 rounded ${active ? 'bg-[#5e1e12] text-white' : 'bg-[#E5DDD3] text-[#5e1e12]'}`}>{plan}</span>
+                                    <p className="text-xs text-[#6D5840] font-sans mt-1">
+                                      {plan === 'BB' ? 'Bed & Breakfast' : 'Half Board'}
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="font-serif text-lg font-semibold text-[#5e1e12]">${rate.pricePerNight}<span className="text-xs font-sans font-normal text-[#6D5840]">/night</span></p>
+                                    <p className="text-xs text-[#6D5840] font-sans">Total: ${rate.totalUsd}</p>
+                                  </div>
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
                     </div>
                   </article>
                 ))}
               </div>
 
-              <div className="mt-8 pt-6 border-t border-[#E5DDD3]">
+              <div className="mt-8 pt-6 border-t border-[#E5DDD3] flex items-center justify-between">
                 <button onClick={() => setStep(1)} className="inline-flex items-center gap-2 px-6 py-3 border border-[#E5DDD3] bg-white text-[#2C1A12] font-sans font-semibold text-sm rounded-lg hover:bg-[#FAF7F2] hover:border-[#5e1e12]/30 transition-colors">
                   <ChevronLeft size={16} /> Back to Dates
+                </button>
+                <button
+                  onClick={() => setStep(3)}
+                  disabled={!selectedRoom}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#5e1e12] text-white font-sans font-semibold text-sm rounded hover:bg-[#7a2a1c] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 group"
+                >
+                  Submit Your Details
+                  <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
             </div>
@@ -486,7 +487,7 @@ export default function BookPage() {
                       onClick={() => setStep(2)}
                       className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 border border-[#E5DDD3] bg-white text-[#2C1A12] font-sans font-semibold text-sm rounded hover:bg-[#FAF7F2] hover:border-[#5e1e12]/30 transition-all duration-200 order-2 sm:order-1"
                     >
-                      <ChevronLeft size={16} /> Back
+                      <ChevronLeft size={16} /> Back to Rooms
                     </button>
                     <button
                       onClick={handleSubmit}

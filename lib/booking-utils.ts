@@ -71,7 +71,7 @@ export async function findAvailableRoomTypes(
         take: 1, // we just need to know one is free
       },
     },
-    orderBy: { displayName: 'asc' },
+    orderBy: { createdAt: 'asc' },
   })
 
   return roomTypes

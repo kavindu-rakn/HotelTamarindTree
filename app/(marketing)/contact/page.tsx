@@ -119,8 +119,8 @@ export default function ContactPage() {
           </div>
 
           {/* Right: Form */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl border border-[#E5DDD3] p-8 shadow-[0_2px_20px_rgba(94,30,18,0.06)]">
+          <div className="lg:col-span-3 h-full">
+            <div className="h-full flex flex-col bg-white rounded-xl border border-[#E5DDD3] p-8 shadow-[0_2px_20px_rgba(94,30,18,0.06)]">
               {status === 'sent' ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
                   <CheckCircle size={48} className="text-green-600" />
@@ -132,7 +132,7 @@ export default function ContactPage() {
               ) : (
                 <>
                   <h2 className="font-serif text-2xl font-semibold text-[#2C1A12] mb-6">Send Us a Message</h2>
-                  <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                  <form onSubmit={handleSubmit} className="flex-1 flex flex-col space-y-5" noValidate>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
                         <label htmlFor="contact-name" className="block text-sm font-sans font-medium text-[#2C1A12] mb-1.5">Full Name *</label>
@@ -193,7 +193,7 @@ export default function ContactPage() {
                         </select>
                       </div>
                     </div>
-                    <div>
+                    <div className="flex-1 flex flex-col">
                       <label htmlFor="contact-message" className="block text-sm font-sans font-medium text-[#2C1A12] mb-1.5">Message *</label>
                       <textarea
                         id="contact-message"
@@ -203,7 +203,7 @@ export default function ContactPage() {
                         value={form.message}
                         onChange={handleChange}
                         placeholder="Tell us how we can help — include your preferred dates, number of guests, and any special requests."
-                        className="w-full px-4 py-3 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] placeholder-[#6D5840]/50 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors resize-none"
+                        className="w-full flex-1 min-h-[8rem] px-4 py-3 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-[#2C1A12] placeholder-[#6D5840]/50 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#5e1e12]/30 focus:border-[#5e1e12] transition-colors resize-none"
                       />
                     </div>
                     {status === 'error' && (

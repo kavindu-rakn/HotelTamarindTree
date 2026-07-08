@@ -21,7 +21,7 @@ async function getRoomTypes() {
       },
       _count: { select: { units: true } },
     },
-    orderBy: { displayName: 'asc' },
+    orderBy: { createdAt: 'asc' },
   })
 }
 
