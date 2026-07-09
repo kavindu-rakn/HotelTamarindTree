@@ -89,7 +89,7 @@ export default function NewBookingPage() {
 
       <div className="bg-white rounded-xl border border-[#E5DDD3] p-6 mb-6">
         <h2 className="font-serif text-lg font-semibold text-[#2C1A12] mb-4">Dates &amp; Guests</h2>
-        <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <div>
             <label className="block text-xs font-sans font-semibold text-[#6D5840] mb-1.5 uppercase tracking-wider">Check-in</label>
             <input type="date" value={checkIn} min={today()} onChange={e => setCheckIn(e.target.value)}
@@ -134,7 +134,7 @@ export default function NewBookingPage() {
                   <p className="font-semibold text-[#2C1A12] font-sans">{room.displayName}</p>
                   <p className="text-xs text-[#6D5840] font-sans">{room.bedConfig} · max {room.maxOccupancy}</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   {(['BB', 'HB'] as const).map(plan => {
                     const rate = room.rates[plan]
                     if (!rate) return null
@@ -159,13 +159,13 @@ export default function NewBookingPage() {
       {selectedRoom && (
         <div className="bg-white rounded-xl border border-[#E5DDD3] p-6">
           <h2 className="font-serif text-lg font-semibold text-[#2C1A12] mb-4">Guest Details</h2>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <input placeholder="First name" value={firstName} onChange={e => setFirstName(e.target.value)}
               className="px-3 py-2 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-sm font-sans" />
             <input placeholder="Last name" value={lastName} onChange={e => setLastName(e.target.value)}
               className="px-3 py-2 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-sm font-sans" />
           </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)}
               className="px-3 py-2 rounded-lg border border-[#E5DDD3] bg-[#FAF7F2] text-sm font-sans" />
             <input type="tel" placeholder="Phone" value={phone} onChange={e => setPhone(e.target.value)}

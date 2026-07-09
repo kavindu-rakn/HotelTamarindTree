@@ -203,8 +203,8 @@ function UnitRow({ unit }: { unit: UnitData }) {
 
   return (
     <div className="border border-[#E5DDD3] rounded-lg">
-      <div className="flex items-center justify-between px-4 py-2.5">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="font-sans font-semibold text-[#2C1A12] text-sm">Unit {unit.unitNumber}</span>
           {unit.floor != null && <span className="text-xs text-[#6D5840] font-sans">Floor {unit.floor}</span>}
           {!unit.isActive && <span className="text-xs font-sans font-semibold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">Inactive</span>}

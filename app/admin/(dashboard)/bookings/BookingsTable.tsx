@@ -39,7 +39,15 @@ export default function BookingsTable({ bookings }: { bookings: BookingRow[] }) 
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-[#E5DDD3] overflow-x-auto">
+      {/* Mobile: cards */}
+      <div className="space-y-3 md:hidden">
+        {bookings.map(b => (
+          <BookingCard key={b.id} booking={b} onRequestCancel={() => setCancelTarget(b)} />
+        ))}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden md:block bg-white rounded-xl border border-[#E5DDD3] overflow-x-auto">
         <table className="w-full text-sm font-sans">
           <thead>
             <tr className="border-b border-[#E5DDD3] text-left text-xs text-[#6D5840] uppercase tracking-wider">
@@ -67,7 +75,16 @@ export default function BookingsTable({ bookings }: { bookings: BookingRow[] }) 
   )
 }
 
-function BookingRowItem({ booking, onRequestCancel }: { booking: BookingRow; onRequestCancel: () => void }) {
+function StatusBadge({ status }: { status: BookingStatus }) {
+  return (
+    <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold border ${STATUS_STYLES[status]}`}>
+      {BOOKING_STATUS_LABELS[status]}
+    </span>
+  )
+}
+
+/** Shared per-row action state (confirm / cancel / check-in / etc.) used by both layouts. */
+function useBookingActions() {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
 
@@ -81,6 +98,93 @@ function BookingRowItem({ booking, onRequestCancel }: { booking: BookingRow; onR
       }
     })
   }
+
+  return { isPending, error, run }
+}
+
+function BookingActionButtons({
+  booking,
+  isPending,
+  run,
+  onRequestCancel,
+  align = 'end',
+}: {
+  booking: BookingRow
+  isPending: boolean
+  run: (action: () => Promise<void>) => void
+  onRequestCancel: () => void
+  align?: 'start' | 'end'
+}) {
+  return (
+    <div className={`flex items-center gap-1.5 ${align === 'end' ? 'justify-end' : 'justify-start'}`}>
+      {isPending && <Loader2 size={14} className="animate-spin text-[#6D5840]" />}
+      {!isPending && booking.status === 'PENDING' && (
+        <>
+          <ActionButton title="Confirm" onClick={() => run(() => confirmBooking(booking.id))} icon={Check} className="text-green-700 hover:bg-green-50" />
+          <ActionButton title="Cancel" onClick={onRequestCancel} icon={X} className="text-red-600 hover:bg-red-50" />
+        </>
+      )}
+      {!isPending && booking.status === 'CONFIRMED' && (
+        <>
+          <ActionButton title="Check In" onClick={() => run(() => checkInBooking(booking.id))} icon={LogIn} className="text-blue-700 hover:bg-blue-50" />
+          <ActionButton title="No-show" onClick={() => run(() => markNoShow(booking.id))} icon={UserX} className="text-amber-700 hover:bg-amber-50" />
+          <ActionButton title="Cancel" onClick={onRequestCancel} icon={X} className="text-red-600 hover:bg-red-50" />
+        </>
+      )}
+      {!isPending && booking.status === 'CHECKED_IN' && (
+        <ActionButton title="Check Out" onClick={() => run(() => checkOutBooking(booking.id))} icon={LogOut} className="text-gray-700 hover:bg-gray-100" />
+      )}
+    </div>
+  )
+}
+
+function BookingCard({ booking, onRequestCancel }: { booking: BookingRow; onRequestCancel: () => void }) {
+  const { isPending, error, run } = useBookingActions()
+  const hasActions = ['PENDING', 'CONFIRMED', 'CHECKED_IN'].includes(booking.status)
+
+  return (
+    <div className="bg-white rounded-xl border border-[#E5DDD3] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-semibold text-[#2C1A12] truncate">{booking.guestName}</p>
+          <p className="text-xs text-[#6D5840] truncate">{booking.guestEmail}</p>
+        </div>
+        <StatusBadge status={booking.status} />
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm font-sans">
+        <div>
+          <p className="text-[10px] text-[#6D5840] uppercase tracking-wider">Room</p>
+          <p className="text-[#2C1A12]">{booking.roomName}</p>
+          <p className="text-xs text-[#6D5840]">Unit {booking.unitNumber} · {booking.mealPlan} · {booking.numGuests} guest{booking.numGuests !== 1 ? 's' : ''}</p>
+        </div>
+        <div>
+          <p className="text-[10px] text-[#6D5840] uppercase tracking-wider">Total</p>
+          <p className="text-[#2C1A12] font-semibold">{formatUSD(booking.totalUsd)}</p>
+        </div>
+        <div>
+          <p className="text-[10px] text-[#6D5840] uppercase tracking-wider">Dates</p>
+          <p className="text-xs text-[#5a3d2b]">{formatDateShort(booking.checkIn)} → {formatDateShort(booking.checkOut)}</p>
+        </div>
+        <div>
+          <p className="text-[10px] text-[#6D5840] uppercase tracking-wider">Ref</p>
+          <p className="font-mono text-xs text-[#5e1e12]">{booking.confirmationCode}</p>
+        </div>
+      </div>
+
+      {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
+
+      {hasActions && (
+        <div className="mt-3 pt-3 border-t border-[#E5DDD3]">
+          <BookingActionButtons booking={booking} isPending={isPending} run={run} onRequestCancel={onRequestCancel} align="start" />
+        </div>
+      )}
+    </div>
+  )
+}
+
+function BookingRowItem({ booking, onRequestCancel }: { booking: BookingRow; onRequestCancel: () => void }) {
+  const { isPending, error, run } = useBookingActions()
 
   return (
     <tr className="border-b border-[#E5DDD3] last:border-0 hover:bg-[#FAF7F2]/60">
@@ -97,32 +201,12 @@ function BookingRowItem({ booking, onRequestCancel }: { booking: BookingRow; onR
       </td>
       <td className="px-4 py-3 text-[#2C1A12] font-semibold">{formatUSD(booking.totalUsd)}</td>
       <td className="px-4 py-3">
-        <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold border ${STATUS_STYLES[booking.status]}`}>
-          {BOOKING_STATUS_LABELS[booking.status]}
-        </span>
+        <StatusBadge status={booking.status} />
         {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
       </td>
       <td className="px-4 py-3 font-mono text-xs text-[#5e1e12]">{booking.confirmationCode}</td>
       <td className="px-4 py-3">
-        <div className="flex items-center justify-end gap-1.5">
-          {isPending && <Loader2 size={14} className="animate-spin text-[#6D5840]" />}
-          {!isPending && booking.status === 'PENDING' && (
-            <>
-              <ActionButton title="Confirm" onClick={() => run(() => confirmBooking(booking.id))} icon={Check} className="text-green-700 hover:bg-green-50" />
-              <ActionButton title="Cancel" onClick={onRequestCancel} icon={X} className="text-red-600 hover:bg-red-50" />
-            </>
-          )}
-          {!isPending && booking.status === 'CONFIRMED' && (
-            <>
-              <ActionButton title="Check In" onClick={() => run(() => checkInBooking(booking.id))} icon={LogIn} className="text-blue-700 hover:bg-blue-50" />
-              <ActionButton title="No-show" onClick={() => run(() => markNoShow(booking.id))} icon={UserX} className="text-amber-700 hover:bg-amber-50" />
-              <ActionButton title="Cancel" onClick={onRequestCancel} icon={X} className="text-red-600 hover:bg-red-50" />
-            </>
-          )}
-          {!isPending && booking.status === 'CHECKED_IN' && (
-            <ActionButton title="Check Out" onClick={() => run(() => checkOutBooking(booking.id))} icon={LogOut} className="text-gray-700 hover:bg-gray-100" />
-          )}
-        </div>
+        <BookingActionButtons booking={booking} isPending={isPending} run={run} onRequestCancel={onRequestCancel} align="end" />
       </td>
     </tr>
   )
