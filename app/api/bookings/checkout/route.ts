@@ -31,7 +31,7 @@ async function createBookingWithRetry(params: {
   numGuests: number
   totalUsd: number
   specialRequests: string | null
-}, maxAttempts = 3) {
+}, maxAttempts = 5) {
   const { roomTypeId, checkInDate, checkOutDate, ...rest } = params
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const unitId = await assignAvailableUnit(roomTypeId, checkInDate, checkOutDate)

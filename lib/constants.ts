@@ -81,6 +81,10 @@ export const MIN_STAY_NIGHTS         = 1
 export const DEFAULT_CHECK_IN_HOUR   = 14  // 2 PM
 export const DEFAULT_CHECK_OUT_HOUR  = 11  // 11 AM
 
+// PENDING requests older than this with no staff action are auto-cancelled
+// so the room unit frees up again (see /api/cron/expire-pending).
+export const PENDING_REQUEST_EXPIRY_HOURS = 48
+
 // ─── Admin Roles ─────────────────────────────────────────────
 export const ADMIN_ROLES = {
   ADMIN: 'ADMIN',

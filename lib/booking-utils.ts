@@ -96,16 +96,22 @@ export async function assignAvailableUnit(
   })
   const occupiedIds = occupied.map(b => b.roomUnitId)
 
-  const unit = await db.roomUnit.findFirst({
+  const available = await db.roomUnit.findMany({
     where: {
       roomTypeId,
       isActive: true,
       id: { notIn: occupiedIds },
     },
-    orderBy: { unitNumber: 'asc' },
+    select: { id: true },
   })
+  if (available.length === 0) return null
 
-  return unit?.id ?? null
+  // Pick randomly rather than always the lowest unit number — under
+  // concurrent requests, always picking the same "first" unit means every
+  // request piles onto one row and only one winner emerges per retry round,
+  // starving out requests even when other units are free. Randomizing
+  // spreads concurrent requests across different units so more succeed.
+  return available[Math.floor(Math.random() * available.length)].id
 }
 
 // ─── Email templates ───────────────────────────────────────────────────────
