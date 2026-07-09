@@ -12,15 +12,10 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
-// All URL slugs for static generation
-export async function generateStaticParams() {
-  return [
-    { slug: 'deluxe-twin' },
-    { slug: 'deluxe-double' },
-    { slug: 'deluxe-triple' },
-    { slug: 'family' },
-  ]
-}
+// Render on-demand rather than prerendering at build time, so the build never
+// depends on the database being reachable and admin room edits appear
+// immediately. Invalid slugs are rejected below via urlSlugToEnum → notFound().
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params

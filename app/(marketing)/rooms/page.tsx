@@ -12,6 +12,13 @@ export const metadata: Metadata = {
     'Choose from Deluxe Twin, Deluxe Double, Deluxe Triple, and Family rooms at Hotel Tamarind Tree. Bed & Breakfast and Half Board packages available.',
 }
 
+// Render on-demand rather than prerendering at build time. This keeps the
+// build independent of the database (a Neon blip or missing DATABASE_URL on a
+// preview branch can't fail the build) and reflects admin room/rate edits
+// immediately. The query is small and traffic is low, so per-request cost is
+// negligible.
+export const dynamic = 'force-dynamic'
+
 async function getRoomTypes() {
   return db.roomType.findMany({
     include: {
